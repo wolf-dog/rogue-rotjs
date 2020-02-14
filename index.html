@@ -5,6 +5,9 @@
   <title>rogue by rot.js test</title>
 </head>
 <body>
-  <script type="module" src="example.js"></script>
+  <script type="module">
+    import Game from "./example.js";
+    Game.init(document.body)
+  </script>
 </body>
 </html>

@@ -1,23 +1,62 @@
-import {Display, Map, RNG, Util} from "/node_modules/rot-js/lib/index.js";
+import { Display, Map, RNG, Util } from "./node_modules/rot-js/lib/index.js";
 
-RNG.setSeed(2);
+let Game = {
+  display: null,
+  map: {},
 
-let map = new Map.Digger();
-let display = new Display({
-  bg: 'black',
-  fg: 'white',
-  fontSize: 13
-});
-document.body.appendChild(display.getContainer());
+  init: function(container) {
+    RNG.setSeed(Math.random());
 
-map.create(display.DEBUG);
+    this._initDisplay(container);
+    this._generateMap();
+  },
 
-let drawDoor = function(x, y) {
-  display.draw(x, y, '+');
+  _generateMap: function() {
+    let digger = new Map.Digger(100, 30);
+    let freeCells = [];
+
+    let digCallback = function(x, y, contents) {
+      if (contents) {
+        return;
+      }
+
+      let key = x + ',' + y;
+      this.map[key] = '.';
+      freeCells.push(key);
+    }
+    digger.create(digCallback.bind(this));
+
+    this._generateBoxes(freeCells);
+    this._drawWholeMap();
+  },
+
+  _generateBoxes: function(freeCells) {
+    for (let i = 0; i < 10; i++) {
+      let index = Math.floor(RNG.getUniform() * freeCells.length);
+      let key = freeCells.splice(index, 1)[0];
+      this.map[key] = '*';
+    }
+  },
+
+  _drawWholeMap: function() {
+    for (var key in this.map) {
+      let parts = key.split(',');
+      let x = parseInt(parts[0]);
+      var y = parseInt(parts[1]);
+      this.display.draw(x, y, this.map[key]);
+    }
+  },
+
+  _initDisplay: function(container) {
+    this.display = new Display({
+      bg: 'black',
+      fg: 'white',
+      width: 100,
+      height: 30,
+      fontSize: 16
+    });
+    container.appendChild(this.display.getContainer());
+  }
 }
 
-let rooms = map.getRooms();
-for (let i = 0; i < rooms.length; i++) {
-  let room = rooms[i];
-  room.getDoors(drawDoor);
-}
+export { Game as default }
