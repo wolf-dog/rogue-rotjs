@@ -7,6 +7,23 @@ const numOfBoxes = 10;
 const Player = {
   x: null,
   y: null,
+
+  create() {
+    return this;
+  },
+
+  place(x, y) {
+    this.x = x;
+    this.y = y;
+  },
+
+  draw(display) {
+    display.draw(this.x, this.y, '@', 'yellow');
+  },
+}
+
+const User = {
+  player: null,
   window: null,
   keyMap: {
     72: DIRS[8][6],
@@ -19,19 +36,11 @@ const Player = {
     77: DIRS[8][3],
   },
 
-  create(window) {
+  create(player, window) {
+    this.player = player;
     this.window = window;
 
     return this;
-  },
-
-  place(x, y) {
-    this.x = x;
-    this.y = y;
-  },
-
-  draw(display) {
-    display.draw(this.x, this.y, '@', 'yellow');
   },
 
   act() {
@@ -46,17 +55,17 @@ const Player = {
       return;
     }
 
-    let newX = this.x + this.keyMap[code][0];
-    let newY = this.y + this.keyMap[code][1];
+    let newX = this.player.x + this.keyMap[code][0];
+    let newY = this.player.y + this.keyMap[code][1];
     let newKey = newX + ',' + newY;
     if (!(newKey in Game.map)) {
       return;
     }
 
-    Game.display.draw(this.x, this.y, Game.map[this.x + ',' + this.y]);
-    this.x = newX;
-    this.y = newY;
-    this.draw(Game.display);
+    Game.display.draw(this.player.x, this.player.y, Game.map[this.player.x + ',' + this.player.y]);
+    this.player.x = newX;
+    this.player.y = newY;
+    this.player.draw(Game.display);
     this.window.removeEventListener('keydown', this);
     Game.engine.unlock();
   },
@@ -79,14 +88,17 @@ const Game = {
 
   _initEngine() {
     const scheduler = new Scheduler.Simple();
-    scheduler.add(this.player, true);
+    scheduler.add(
+      User.create(this.player, window),
+      true
+    );
 
     this.engine = new Engine(scheduler);
     this.engine.start();
   },
 
-  _initPlayer(window) {
-    this.player = Player.create(window);
+  _initPlayer() {
+    this.player = Player.create();
   },
 
   _initDisplay(container) {
