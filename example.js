@@ -28,7 +28,7 @@ const Player = {
 
 const User = {
   player: null,
-  keyMap: {
+  movingKeyMap: {
     72: DIRS[8][6],
     74: DIRS[8][4],
     75: DIRS[8][0],
@@ -53,12 +53,33 @@ const User = {
   handleEvent(event) {
     const code = event.keyCode;
 
-    if (!(code in this.keyMap)) {
+    if (code === 32) {
+      this._checkBox();
       return;
     }
 
-    let newX = this.player.x + this.keyMap[code][0];
-    let newY = this.player.y + this.keyMap[code][1];
+    this._move(code);
+  },
+
+  _checkBox() {
+    let key = this.player.x + ',' + this.player.y;
+    if (Game.map[key] !== '*') {
+      window.alert('There is no box here!');
+    } else if (key === Game.ananas) {
+      window.alert('You Found an ananas and won this game!!');
+      window.removeEventListener('keydown', this);
+    } else {
+      window.alert('This box is empty.');
+    }
+  },
+
+  _move(code) {
+    if (!(code in this.movingKeyMap)) {
+      return;
+    }
+
+    let newX = this.player.x + this.movingKeyMap[code][0];
+    let newY = this.player.y + this.movingKeyMap[code][1];
     let newKey = newX + ',' + newY;
     if (!(newKey in Game.map)) {
       return;
@@ -72,6 +93,10 @@ const User = {
     this.player.x = newX;
     this.player.y = newY;
     this.player.draw();
+    this._resolve();
+  },
+
+  _resolve() {
     window.removeEventListener('keydown', this);
     engine.unlock();
   },
@@ -80,6 +105,7 @@ const User = {
 const Game = {
   map: {},
   player: null,
+  ananas: null,
 
   init(container, browserWindow) {
     RNG.setSeed(Math.random());
@@ -134,6 +160,10 @@ const Game = {
       const index = Math.floor(RNG.getUniform() * freeCells.length);
       const key = freeCells.splice(index, 1)[0];
       this.map[key] = '*';
+
+      if (i === 0) {
+        this.ananas = key;
+      }
     }
   },
 
