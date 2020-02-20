@@ -4,6 +4,10 @@ const mapWidth = 100;
 const mapHeight = 30;
 const numOfBoxes = 10;
 
+let display = null;
+let window = null;
+let engine = null;
+
 const Player = {
   x: null,
   y: null,
@@ -17,14 +21,13 @@ const Player = {
     this.y = y;
   },
 
-  draw(display) {
+  draw() {
     display.draw(this.x, this.y, '@', 'yellow');
   },
 }
 
 const User = {
   player: null,
-  window: null,
   keyMap: {
     72: DIRS[8][6],
     74: DIRS[8][4],
@@ -36,16 +39,15 @@ const User = {
     77: DIRS[8][3],
   },
 
-  create(player, window) {
+  create(player) {
     this.player = player;
-    this.window = window;
 
     return this;
   },
 
   act() {
-    Game.engine.lock();
-    this.window.addEventListener('keydown', this);
+    engine.lock();
+    window.addEventListener('keydown', this);
   },
 
   handleEvent(event) {
@@ -62,54 +64,46 @@ const User = {
       return;
     }
 
-    Game.display.draw(this.player.x, this.player.y, Game.map[this.player.x + ',' + this.player.y]);
+    display.draw(
+      this.player.x,
+      this.player.y,
+      Game.map[this.player.x + ',' + this.player.y]
+    );
     this.player.x = newX;
     this.player.y = newY;
-    this.player.draw(Game.display);
-    this.window.removeEventListener('keydown', this);
-    Game.engine.unlock();
+    this.player.draw();
+    window.removeEventListener('keydown', this);
+    engine.unlock();
   },
 }
 
 const Game = {
-  display: null,
   map: {},
   player: null,
-  engine: null,
 
-  init(container, window) {
+  init(container, browserWindow) {
     RNG.setSeed(Math.random());
+    window = browserWindow;
 
-    this._initPlayer(window);
     this._initDisplay(container);
+    this._initPlayer();
     this._generateMap();
     this._initEngine();
   },
 
-  _initEngine() {
-    const scheduler = new Scheduler.Simple();
-    scheduler.add(
-      User.create(this.player, window),
-      true
-    );
-
-    this.engine = new Engine(scheduler);
-    this.engine.start();
-  },
-
-  _initPlayer() {
-    this.player = Player.create();
-  },
-
   _initDisplay(container) {
-    this.display = new Display({
+    display = new Display({
       bg: 'black',
       fg: 'white',
       width: mapWidth,
       height: mapHeight,
       fontSize: 16
     });
-    container.appendChild(this.display.getContainer());
+    container.appendChild(display.getContainer());
+  },
+
+  _initPlayer() {
+    this.player = Player.create(display);
   },
 
   _generateMap() {
@@ -150,7 +144,7 @@ const Game = {
     const x = parseInt(parts[0]);
     const y = parseInt(parts[1]);
     this.player.place(x, y);
-    this.player.draw(this.display);
+    this.player.draw();
   },
 
   _drawWholeMap() {
@@ -158,8 +152,19 @@ const Game = {
       const parts = key.split(',');
       const x = parseInt(parts[0]);
       const y = parseInt(parts[1]);
-      this.display.draw(x, y, this.map[key]);
+      display.draw(x, y, this.map[key]);
     }
+  },
+
+  _initEngine() {
+    const scheduler = new Scheduler.Simple();
+    scheduler.add(
+      User.create(this.player),
+      true
+    );
+
+    engine = new Engine(scheduler);
+    engine.start();
   },
 }
 
