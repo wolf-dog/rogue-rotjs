@@ -1,8 +1,5 @@
 import { DIRS, Display, Engine, Map, Path, RNG, Scheduler, Util } from "./node_modules/rot-js/lib/index.js";
 
-const levelWidth = 100;
-const levelHeight = 30;
-const numOfBoxes = 10;
 
 class Player {
   movingKeyMap = {
@@ -170,16 +167,48 @@ class Level {
     return Level.key(x, y) in this.terrain;
   }
 
-  getWholeTerrain() {
-    return this.terrain;
+  isVisibleWall(x, y) {
+    if (this.exists(x, y)) {
+      return false;
+    }
+
+    if (this.exists(x- 1, y - 1)
+      || this.exists(x - 1, y)
+      || this.exists(x - 1, y + 1)
+      || this.exists(x, y - 1)
+      || this.exists(x, y + 1)
+      || this.exists(x + 1, y - 1)
+      || this.exists(x + 1, y)
+      || this.exists(x + 1, y + 1)
+    ) {
+      return true;
+    }
+
+    return false;
   }
 
   getTerrain(x, y) {
-    return this.terrain[Level.key(x, y)];
+    if (this.exists(x, y)) {
+      return this.terrain[Level.key(x, y)];
+    }
+
+    if (this.isVisibleWall(x, y)) {
+      return '#';
+    }
+
+    return '';
   }
 
   setTerrain(x, y, content) {
     this.terrain[Level.key(x, y)] = content;
+  }
+
+  setFloor(x, y) {
+    this.setTerrain(x, y, '.');
+  }
+
+  setBox(x, y) {
+    this.setTerrain(x, y, '*');
   }
 
   hasAnanas(x, y) {
@@ -216,6 +245,10 @@ class Level {
 }
 
 class Game {
+  levelWidth = 100;
+  levelHeight = 30;
+  numOfBoxes = 10;
+
   level = null;
   window = null;
   display = null;
@@ -244,8 +277,8 @@ class Game {
     this.display = new Display({
       bg: 'black',
       fg: 'white',
-      width: levelWidth,
-      height: levelHeight,
+      width: this.levelWidth,
+      height: this.levelHeight,
       fontSize: 16
     });
     container.appendChild(this.display.getContainer());
@@ -260,7 +293,7 @@ class Game {
   }
 
   _generateLevel() {
-    const digger = new Map.Digger(levelWidth, levelHeight, {
+    const digger = new Map.Digger(this.levelWidth, this.levelHeight, {
       roomWidth: [3, 15],
       roomHeight: [3, 9],
       dugPercentage: [0.3],
@@ -271,7 +304,7 @@ class Game {
         return;
       }
 
-      this.level.setTerrain(x, y, '.');
+      this.level.setFloor(x, y);
       this.level.pushIntoFreeCells(x, y);
     });
 
@@ -280,10 +313,10 @@ class Game {
   }
 
   _generateBoxes(level) {
-    for (let i = 0; i < numOfBoxes; i++) {
+    for (let i = 0; i < this.numOfBoxes; i++) {
       const index = Math.floor(RNG.getUniform() * level.getFreeCells().length);
       const coordinates = level.spliceFreeCells(index)
-      this.level.setTerrain(coordinates.x, coordinates.y, '*');
+      this.level.setBox(coordinates.x, coordinates.y);
 
       if (i === 0) {
         this.level.setAnanas(coordinates.x, coordinates.y);
@@ -299,9 +332,10 @@ class Game {
   }
 
   _drawWholeLevel() {
-    for (let key in this.level.getWholeTerrain()) {
-      const coordinates = Level.partKey(key);
-      this.display.draw(coordinates.x, coordinates.y, this.level.getTerrain(coordinates.x, coordinates.y));
+    for (let x = 0; x < this.levelWidth; x++) {
+      for (let y = 0; y < this.levelHeight; y++) {
+        this.display.draw(x, y, this.level.getTerrain(x, y));
+      }
     }
   }
 
