@@ -9,6 +9,17 @@ let window = null;
 let engine = null;
 
 const Player = {
+  movingKeyMap: {
+    72: DIRS[8][6],
+    74: DIRS[8][4],
+    75: DIRS[8][0],
+    76: DIRS[8][2],
+    89: DIRS[8][7],
+    85: DIRS[8][1],
+    78: DIRS[8][5],
+    77: DIRS[8][3],
+  },
+
   x: null,
   y: null,
 
@@ -23,26 +34,6 @@ const Player = {
 
   draw() {
     display.draw(this.x, this.y, '@', 'yellow');
-  },
-}
-
-const User = {
-  player: null,
-  movingKeyMap: {
-    72: DIRS[8][6],
-    74: DIRS[8][4],
-    75: DIRS[8][0],
-    76: DIRS[8][2],
-    89: DIRS[8][7],
-    85: DIRS[8][1],
-    78: DIRS[8][5],
-    77: DIRS[8][3],
-  },
-
-  create(player) {
-    this.player = player;
-
-    return this;
   },
 
   act() {
@@ -62,7 +53,7 @@ const User = {
   },
 
   _checkBox() {
-    let key = this.player.x + ',' + this.player.y;
+    let key = this.x + ',' + this.y;
     if (Game.map[key] !== '*') {
       window.alert('There is no box here!');
     } else if (key === Game.ananas) {
@@ -78,21 +69,21 @@ const User = {
       return;
     }
 
-    let newX = this.player.x + this.movingKeyMap[code][0];
-    let newY = this.player.y + this.movingKeyMap[code][1];
+    let newX = this.x + this.movingKeyMap[code][0];
+    let newY = this.y + this.movingKeyMap[code][1];
     let newKey = newX + ',' + newY;
     if (!(newKey in Game.map)) {
       return;
     }
 
     display.draw(
-      this.player.x,
-      this.player.y,
-      Game.map[this.player.x + ',' + this.player.y]
+      this.x,
+      this.y,
+      Game.map[this.x + ',' + this.y]
     );
-    this.player.x = newX;
-    this.player.y = newY;
-    this.player.draw();
+    this.x = newX;
+    this.y = newY;
+    this.draw();
     this._resolve();
   },
 
@@ -189,7 +180,7 @@ const Game = {
   _initEngine() {
     const scheduler = new Scheduler.Simple();
     scheduler.add(
-      User.create(this.player),
+      Player.create(),
       true
     );
 
