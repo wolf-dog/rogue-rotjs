@@ -4,10 +4,6 @@ const mapWidth = 100;
 const mapHeight = 30;
 const numOfBoxes = 10;
 
-let display = null;
-let window = null;
-let engine = null;
-
 class Player {
   movingKeyMap = {
     72: DIRS[8][6],
@@ -22,10 +18,19 @@ class Player {
 
   x = null;
   y = null;
+  window = null;
+  display = null;
   map = null;
+  engine = null;
 
-  constructor(map) {
+  constructor(window, display, map) {
+    this.window = window;
+    this.display = display;
     this.map = map;
+  }
+
+  setEngine(engine) {
+    this.engine = engine;
   }
 
   place(x, y) {
@@ -34,12 +39,12 @@ class Player {
   }
 
   draw() {
-    display.draw(this.x, this.y, '@', 'yellow');
+    this.display.draw(this.x, this.y, '@', 'yellow');
   }
 
   act() {
-    engine.lock();
-    window.addEventListener('keydown', this);
+    this.engine.lock();
+    this.window.addEventListener('keydown', this);
   }
 
   handleEvent(event) {
@@ -56,12 +61,12 @@ class Player {
   _checkBox() {
     let key = this.x + ',' + this.y;
     if (this.map[key] !== '*') {
-      window.alert('There is no box here!');
+      this.window.alert('There is no box here!');
     } else if (key === Game.ananas) {
-      window.alert('You Found an ananas and won this game!!');
-      window.removeEventListener('keydown', this);
+      this.window.alert('You Found an ananas and won this game!!');
+      this.window.removeEventListener('keydown', this);
     } else {
-      window.alert('This box is empty.');
+      this.window.alert('This box is empty.');
     }
   }
 
@@ -77,7 +82,7 @@ class Player {
       return;
     }
 
-    display.draw(
+    this.display.draw(
       this.x,
       this.y,
       this.map[this.x + ',' + this.y]
@@ -89,20 +94,29 @@ class Player {
   }
 
   _resolve() {
-    window.removeEventListener('keydown', this);
-    engine.unlock();
+    this.window.removeEventListener('keydown', this);
+    this.engine.unlock();
   }
 }
 
 class Pedro {
   x = null;
   y = null;
-  player = null;
+  window = null;
+  display = null;
   map = null;
+  engine = null;
+  player = null;
 
-  constructor(player, map) {
-    this.player = player;
+  constructor(window, display, map, player) {
+    this.window = window;
+    this.display = display;
     this.map = map;
+    this.player = player;
+  }
+
+  setEngine(engine) {
+    this.engine = engine;
   }
 
   place(x, y) {
@@ -111,14 +125,14 @@ class Pedro {
   }
 
   draw() {
-    display.draw(this.x, this.y, 'P', 'red');
+    this.display.draw(this.x, this.y, 'P', 'red');
   }
 
   act() {
     const passableCallback = function(x, y) {
       return (x + ',' + y in this.map);
     }.bind(this);
-    const astar = new Path.AStar(this.player.x, this.player.y, passableCallback, {topology: 4});
+    const astar = new Path.AStar(this.player.x, this.player.y, passableCallback, {topology: 8});
 
     let path = [];
     const pathCallback = function(x, y) {
@@ -129,12 +143,12 @@ class Pedro {
 
     path.shift();
     if (path.length <= 1) {
-      engine.lock();
-      window.alert('Game Over!!!');
+      this.engine.lock();
+      this.window.alert('Game Over!!!');
     } else {
       const newX = path[0][0];
       const newY = path[0][1];
-      display.draw(this.x, this.y, this.map[this.x + ',' + this.y]);
+      this.display.draw(this.x, this.y, this.map[this.x + ',' + this.y]);
       this.x = newX;
       this.y = newY;
       this.draw();
@@ -145,13 +159,16 @@ class Pedro {
 class Game {
   map = {};
   freeCells = [];
+  window = null;
+  display = null;
+  engine = null;
   player = null;
   enemies = null;
   ananas = null;
 
-  constructor(container, browserWindow) {
+  constructor(container, window) {
     RNG.setSeed(Math.random());
-    window = browserWindow;
+    this.window = window;
 
     this._initDisplay(container);
     this._generateMap();
@@ -166,21 +183,21 @@ class Game {
   }
 
   _initDisplay(container) {
-    display = new Display({
+    this.display = new Display({
       bg: 'black',
       fg: 'white',
       width: mapWidth,
       height: mapHeight,
       fontSize: 16
     });
-    container.appendChild(display.getContainer());
+    container.appendChild(this.display.getContainer());
   }
 
   _initActors() {
-    this.player = new Player(this.map);
+    this.player = new Player(this.window, this.display, this.map);
     this.enemies = [
-      new Pedro(this.player, this.map),
-      new Pedro(this.player, this.map),
+      new Pedro(this.window, this.display, this.map, this.player),
+      new Pedro(this.window, this.display, this.map, this.player),
     ];
   }
 
@@ -232,19 +249,25 @@ class Game {
       const parts = key.split(',');
       const x = parseInt(parts[0]);
       const y = parseInt(parts[1]);
-      display.draw(x, y, this.map[key]);
+      this.display.draw(x, y, this.map[key]);
     }
   }
 
   _initEngine() {
     const scheduler = new Scheduler.Simple();
+
     scheduler.add(this.player, true);
     for (const enemy of this.enemies) {
       scheduler.add(enemy, true);
     }
 
-    engine = new Engine(scheduler);
-    engine.start();
+    this.engine = new Engine(scheduler);
+    this.player.setEngine(this.engine);
+    for (const enemy of this.enemies) {
+      enemy.setEngine(this.engine);
+    }
+
+    this.engine.start();
   }
 }
 
