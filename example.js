@@ -1,4 +1,4 @@
-import { DIRS, Display, Engine, Map, RNG, Scheduler, Util } from "./node_modules/rot-js/lib/index.js";
+import { DIRS, Display, Engine, Map, Path, RNG, Scheduler, Util } from "./node_modules/rot-js/lib/index.js";
 
 const mapWidth = 100;
 const mapHeight = 30;
@@ -93,9 +93,58 @@ const Player = {
   },
 }
 
+const Pedro = {
+  x: null,
+  y: null,
+
+  create() {
+    return this;
+  },
+
+  place(x, y) {
+    this.x = x;
+    this.y = y;
+  },
+
+  draw() {
+    display.draw(this.x, this.y, 'P', 'red');
+  },
+
+  act() {
+    const playerX = Player.x;
+    const playerY = Player.y;
+
+    const passableCallback = function(x, y) {
+      return (x + ',' + y in Game.map);
+    }
+    const astar = new Path.AStar(playerX, playerY, passableCallback, {topology: 4});
+
+    let path = [];
+    const pathCallback = function(x, y) {
+      path.push([x, y]);
+    }
+
+    astar.compute(this.x, this.y, pathCallback);
+
+    path.shift();
+    if (path.length <= 1) {
+      engine.lock();
+      window.alert('Game Over!!!');
+    } else {
+      const newX = path[0][0];
+      const newY = path[0][1];
+      display.draw(this.x, this.y, Game.map[this.x + ',' + this.y]);
+      this.x = newX;
+      this.y = newY;
+      this.draw();
+    }
+  },
+}
+
 const Game = {
   map: {},
   player: null,
+  enemy: null,
   ananas: null,
 
   init(container, browserWindow) {
@@ -104,6 +153,7 @@ const Game = {
 
     this._initDisplay(container);
     this._initPlayer();
+    this._initEnemy();
     this._generateMap();
     this._initEngine();
   },
@@ -120,7 +170,11 @@ const Game = {
   },
 
   _initPlayer() {
-    this.player = Player.create(display);
+    this.player = Player.create();
+  },
+
+  _initEnemy() {
+    this.enemy = Pedro.create();
   },
 
   _generateMap() {
@@ -143,7 +197,8 @@ const Game = {
 
     this._generateBoxes(freeCells);
     this._drawWholeMap();
-    this._createPlayer(freeCells);
+    this._placeActor(this.player, freeCells);
+    this._placeActor(this.enemy, freeCells);
   },
 
   _generateBoxes(freeCells) {
@@ -158,14 +213,14 @@ const Game = {
     }
   },
 
-  _createPlayer(freeCells) {
+  _placeActor(actor, freeCells) {
     const index = Math.floor(RNG.getUniform() * freeCells.length);
     const key = freeCells.splice(index, 1)[0];
     const parts = key.split(',');
     const x = parseInt(parts[0]);
     const y = parseInt(parts[1]);
-    this.player.place(x, y);
-    this.player.draw();
+    actor.place(x, y);
+    actor.draw();
   },
 
   _drawWholeMap() {
@@ -179,10 +234,8 @@ const Game = {
 
   _initEngine() {
     const scheduler = new Scheduler.Simple();
-    scheduler.add(
-      Player.create(),
-      true
-    );
+    scheduler.add(this.player, true);
+    scheduler.add(this.enemy, true);
 
     engine = new Engine(scheduler);
     engine.start();
