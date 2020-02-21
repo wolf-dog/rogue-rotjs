@@ -1,7 +1,7 @@
 import { DIRS, Display, Engine, Map, Path, RNG, Scheduler, Util } from "./node_modules/rot-js/lib/index.js";
 
-const mapWidth = 100;
-const mapHeight = 30;
+const levelWidth = 100;
+const levelHeight = 30;
 const numOfBoxes = 10;
 
 class Player {
@@ -18,17 +18,17 @@ class Player {
 
   window = null;
   display = null;
-  map = null;
+  level = null;
 
   engine = null;
 
   x = null;
   y = null;
 
-  constructor(window, display, map) {
+  constructor(window, display, level) {
     this.window = window;
     this.display = display;
-    this.map = map;
+    this.level = level;
   }
 
   setEngine(engine) {
@@ -61,10 +61,9 @@ class Player {
   }
 
   _checkBox() {
-    let key = MapStructure.key(this.x, this.y);
-    if (this.map.getTerrain(this.x, this.y) !== '*') {
+    if (this.level.getTerrain(this.x, this.y) !== '*') {
       this.window.alert('There is no box here!');
-    } else if (key === this.map.ananas) {
+    } else if (this.level.hasAnanas(this.x, this.y)) {
       this.window.alert('You Found an ananas and won this game!!');
       this.window.removeEventListener('keydown', this);
     } else {
@@ -79,14 +78,14 @@ class Player {
 
     let newX = this.x + this.movingKeyMap[code][0];
     let newY = this.y + this.movingKeyMap[code][1];
-    if (!this.map.exists(newX, newY)) {
+    if (!this.level.exists(newX, newY)) {
       return;
     }
 
     this.display.draw(
       this.x,
       this.y,
-      this.map.getTerrain(this.x, this.y)
+      this.level.getTerrain(this.x, this.y)
     );
     this.x = newX;
     this.y = newY;
@@ -103,7 +102,7 @@ class Player {
 class Pedro {
   window = null;
   display = null;
-  map = null;
+  level = null;
   player = null;
 
   engine = null;
@@ -111,10 +110,10 @@ class Pedro {
   x = null;
   y = null;
 
-  constructor(window, display, map, player) {
+  constructor(window, display, level, player) {
     this.window = window;
     this.display = display;
-    this.map = map;
+    this.level = level;
     this.player = player;
   }
 
@@ -133,7 +132,7 @@ class Pedro {
 
   act() {
     const passableCallback = function(x, y) {
-      return this.map.exists(x, y);
+      return this.level.exists(x, y);
     }.bind(this);
     const astar = new Path.AStar(this.player.x, this.player.y, passableCallback, {topology: 8});
 
@@ -151,7 +150,7 @@ class Pedro {
     } else {
       const newX = path[0][0];
       const newY = path[0][1];
-      this.display.draw(this.x, this.y, this.map.getTerrain(this.x, this.y));
+      this.display.draw(this.x, this.y, this.level.getTerrain(this.x, this.y));
       this.x = newX;
       this.y = newY;
       this.draw();
@@ -159,7 +158,7 @@ class Pedro {
   }
 }
 
-class MapStructure {
+class Level {
   terrain = {};
   freeCells = [];
   ananas = null;
@@ -168,7 +167,7 @@ class MapStructure {
   }
 
   exists(x, y) {
-    return MapStructure.key(x, y) in this.terrain;
+    return Level.key(x, y) in this.terrain;
   }
 
   getWholeTerrain() {
@@ -176,19 +175,19 @@ class MapStructure {
   }
 
   getTerrain(x, y) {
-    return this.terrain[MapStructure.key(x, y)];
+    return this.terrain[Level.key(x, y)];
   }
 
   setTerrain(x, y, content) {
-    this.terrain[MapStructure.key(x, y)] = content;
+    this.terrain[Level.key(x, y)] = content;
   }
 
   hasAnanas(x, y) {
-    return MapStructure.key(x, y) === this.ananas;
+    return Level.key(x, y) === this.ananas;
   }
 
   setAnanas(x, y) {
-    this.ananas = MapStructure.key(x, y);
+    this.ananas = Level.key(x, y);
   }
 
   getFreeCells() {
@@ -196,11 +195,11 @@ class MapStructure {
   }
 
   spliceFreeCells(index) {
-    return this.freeCells.splice(index, 1)[0];
+    return Level.partKey(this.freeCells.splice(index, 1)[0]);
   }
 
   pushIntoFreeCells(x, y) {
-    this.freeCells.push(MapStructure.key(x, y));
+    this.freeCells.push(Level.key(x, y));
   }
 
   static key(x, y) {
@@ -217,7 +216,7 @@ class MapStructure {
 }
 
 class Game {
-  map = null;
+  level = null;
   window = null;
   display = null;
   engine = null;
@@ -227,15 +226,15 @@ class Game {
   constructor(container, window) {
     RNG.setSeed(Math.random());
     this.window = window;
-    this.map = new MapStructure();
+    this.level = new Level();
 
     this._initDisplay(container);
-    this._generateMap();
+    this._generateLevel();
 
     this._initActors();
-    this._placeActor(this.player, this.map);
+    this._placeActor(this.player, this.level);
     for (const enemy of this.enemies) {
-      this._placeActor(enemy, this.map);
+      this._placeActor(enemy, this.level);
     }
 
     this._initEngine();
@@ -245,23 +244,23 @@ class Game {
     this.display = new Display({
       bg: 'black',
       fg: 'white',
-      width: mapWidth,
-      height: mapHeight,
+      width: levelWidth,
+      height: levelHeight,
       fontSize: 16
     });
     container.appendChild(this.display.getContainer());
   }
 
   _initActors() {
-    this.player = new Player(this.window, this.display, this.map);
+    this.player = new Player(this.window, this.display, this.level);
     this.enemies = [
-      new Pedro(this.window, this.display, this.map, this.player),
-      new Pedro(this.window, this.display, this.map, this.player),
+      new Pedro(this.window, this.display, this.level, this.player),
+      new Pedro(this.window, this.display, this.level, this.player),
     ];
   }
 
-  _generateMap() {
-    const digger = new Map.Digger(mapWidth, mapHeight, {
+  _generateLevel() {
+    const digger = new Map.Digger(levelWidth, levelHeight, {
       roomWidth: [3, 15],
       roomHeight: [3, 9],
       dugPercentage: [0.3],
@@ -272,38 +271,37 @@ class Game {
         return;
       }
 
-      this.map.setTerrain(x, y, '.');
-      this.map.pushIntoFreeCells(x, y);
+      this.level.setTerrain(x, y, '.');
+      this.level.pushIntoFreeCells(x, y);
     });
 
-    this._generateBoxes(this.map);
-    this._drawWholeMap();
+    this._generateBoxes(this.level);
+    this._drawWholeLevel();
   }
 
-  _generateBoxes(map) {
+  _generateBoxes(level) {
     for (let i = 0; i < numOfBoxes; i++) {
-      const index = Math.floor(RNG.getUniform() * map.getFreeCells().length);
-      const coordinates = MapStructure.partKey(map.spliceFreeCells(index))
-      this.map.setTerrain(coordinates.x, coordinates.y, '*');
+      const index = Math.floor(RNG.getUniform() * level.getFreeCells().length);
+      const coordinates = level.spliceFreeCells(index)
+      this.level.setTerrain(coordinates.x, coordinates.y, '*');
 
       if (i === 0) {
-        this.map.setAnanas(coordinates.x, coordinates.y);
+        this.level.setAnanas(coordinates.x, coordinates.y);
       }
     }
   }
 
-  _placeActor(actor, map) {
-    const index = Math.floor(RNG.getUniform() * map.getFreeCells().length);
-    const key = map.spliceFreeCells(index);
-    const coordinates = MapStructure.partKey(key);
+  _placeActor(actor, level) {
+    const index = Math.floor(RNG.getUniform() * level.getFreeCells().length);
+    const coordinates = level.spliceFreeCells(index);
     actor.place(coordinates.x, coordinates.y);
     actor.draw();
   }
 
-  _drawWholeMap() {
-    for (let key in this.map.getWholeTerrain()) {
-      const coordinates = MapStructure.partKey(key);
-      this.display.draw(coordinates.x, coordinates.y, this.map.getTerrain(coordinates.x, coordinates.y));
+  _drawWholeLevel() {
+    for (let key in this.level.getWholeTerrain()) {
+      const coordinates = Level.partKey(key);
+      this.display.draw(coordinates.x, coordinates.y, this.level.getTerrain(coordinates.x, coordinates.y));
     }
   }
 
