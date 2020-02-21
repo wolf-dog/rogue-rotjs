@@ -64,7 +64,7 @@ class Player {
     let key = MapStructure.key(this.x, this.y);
     if (this.map.getTerrain(this.x, this.y) !== '*') {
       this.window.alert('There is no box here!');
-    } else if (key === Game.ananas) {
+    } else if (key === this.map.ananas) {
       this.window.alert('You Found an ananas and won this game!!');
       this.window.removeEventListener('keydown', this);
     } else {
@@ -162,6 +162,7 @@ class Pedro {
 class MapStructure {
   terrain = {};
   freeCells = [];
+  ananas = null;
 
   constructor() {
   }
@@ -180,6 +181,14 @@ class MapStructure {
 
   setTerrain(x, y, content) {
     this.terrain[MapStructure.key(x, y)] = content;
+  }
+
+  hasAnanas(x, y) {
+    return MapStructure.key(x, y) === this.ananas;
+  }
+
+  setAnanas(x, y) {
+    this.ananas = MapStructure.key(x, y);
   }
 
   getFreeCells() {
@@ -214,7 +223,6 @@ class Game {
   engine = null;
   player = null;
   enemies = null;
-  ananas = null;
 
   constructor(container, window) {
     RNG.setSeed(Math.random());
@@ -274,12 +282,12 @@ class Game {
 
   _generateBoxes(map) {
     for (let i = 0; i < numOfBoxes; i++) {
-      const index = Math.floor(RNG.getUniform() * map.getFreeCells.length);
-      const key = map.spliceFreeCells(index);
-      this.map[key] = '*';
+      const index = Math.floor(RNG.getUniform() * map.getFreeCells().length);
+      const coordinates = MapStructure.partKey(map.spliceFreeCells(index))
+      this.map.setTerrain(coordinates.x, coordinates.y, '*');
 
       if (i === 0) {
-        this.ananas = key;
+        this.map.setAnanas(coordinates.x, coordinates.y);
       }
     }
   }
