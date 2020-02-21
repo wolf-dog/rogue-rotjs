@@ -16,12 +16,14 @@ class Player {
     77: DIRS[8][3],
   };
 
-  x = null;
-  y = null;
   window = null;
   display = null;
   map = null;
+
   engine = null;
+
+  x = null;
+  y = null;
 
   constructor(window, display, map) {
     this.window = window;
@@ -59,8 +61,8 @@ class Player {
   }
 
   _checkBox() {
-    let key = this.x + ',' + this.y;
-    if (this.map[key] !== '*') {
+    let key = MapStructure.key(this.x, this.y);
+    if (this.map.getTerrain(this.x, this.y) !== '*') {
       this.window.alert('There is no box here!');
     } else if (key === Game.ananas) {
       this.window.alert('You Found an ananas and won this game!!');
@@ -77,15 +79,14 @@ class Player {
 
     let newX = this.x + this.movingKeyMap[code][0];
     let newY = this.y + this.movingKeyMap[code][1];
-    let newKey = newX + ',' + newY;
-    if (!(newKey in this.map)) {
+    if (!this.map.exists(newX, newY)) {
       return;
     }
 
     this.display.draw(
       this.x,
       this.y,
-      this.map[this.x + ',' + this.y]
+      this.map.getTerrain(this.x, this.y)
     );
     this.x = newX;
     this.y = newY;
@@ -100,13 +101,15 @@ class Player {
 }
 
 class Pedro {
-  x = null;
-  y = null;
   window = null;
   display = null;
   map = null;
-  engine = null;
   player = null;
+
+  engine = null;
+
+  x = null;
+  y = null;
 
   constructor(window, display, map, player) {
     this.window = window;
@@ -130,7 +133,7 @@ class Pedro {
 
   act() {
     const passableCallback = function(x, y) {
-      return (x + ',' + y in this.map);
+      return this.map.exists(x, y);
     }.bind(this);
     const astar = new Path.AStar(this.player.x, this.player.y, passableCallback, {topology: 8});
 
@@ -148,7 +151,7 @@ class Pedro {
     } else {
       const newX = path[0][0];
       const newY = path[0][1];
-      this.display.draw(this.x, this.y, this.map[this.x + ',' + this.y]);
+      this.display.draw(this.x, this.y, this.map.getTerrain(this.x, this.y));
       this.x = newX;
       this.y = newY;
       this.draw();
@@ -156,9 +159,56 @@ class Pedro {
   }
 }
 
-class Game {
-  map = {};
+class MapStructure {
+  terrain = {};
   freeCells = [];
+
+  constructor() {
+  }
+
+  exists(x, y) {
+    return MapStructure.key(x, y) in this.terrain;
+  }
+
+  getWholeTerrain() {
+    return this.terrain;
+  }
+
+  getTerrain(x, y) {
+    return this.terrain[MapStructure.key(x, y)];
+  }
+
+  setTerrain(x, y, content) {
+    this.terrain[MapStructure.key(x, y)] = content;
+  }
+
+  getFreeCells() {
+    return this.freeCells;
+  }
+
+  spliceFreeCells(index) {
+    return this.freeCells.splice(index, 1)[0];
+  }
+
+  pushIntoFreeCells(x, y) {
+    this.freeCells.push(MapStructure.key(x, y));
+  }
+
+  static key(x, y) {
+    return `${x},${y}`;
+  }
+
+  static partKey(key) {
+    const parts = key.split(',');
+    return {
+      x: parseInt(parts[0]),
+      y: parseInt(parts[1]),
+    }
+  }
+}
+
+class Game {
+  map = null;
   window = null;
   display = null;
   engine = null;
@@ -169,14 +219,15 @@ class Game {
   constructor(container, window) {
     RNG.setSeed(Math.random());
     this.window = window;
+    this.map = new MapStructure();
 
     this._initDisplay(container);
     this._generateMap();
 
     this._initActors();
-    this._placeActor(this.player, this.freeCells);
+    this._placeActor(this.player, this.map);
     for (const enemy of this.enemies) {
-      this._placeActor(enemy, this.freeCells);
+      this._placeActor(enemy, this.map);
     }
 
     this._initEngine();
@@ -213,19 +264,18 @@ class Game {
         return;
       }
 
-      const key = `${x},${y}`;
-      this.map[key] = '.';
-      this.freeCells.push(key);
+      this.map.setTerrain(x, y, '.');
+      this.map.pushIntoFreeCells(x, y);
     });
 
-    this._generateBoxes(this.freeCells);
+    this._generateBoxes(this.map);
     this._drawWholeMap();
   }
 
-  _generateBoxes(freeCells) {
+  _generateBoxes(map) {
     for (let i = 0; i < numOfBoxes; i++) {
-      const index = Math.floor(RNG.getUniform() * freeCells.length);
-      const key = freeCells.splice(index, 1)[0];
+      const index = Math.floor(RNG.getUniform() * map.getFreeCells.length);
+      const key = map.spliceFreeCells(index);
       this.map[key] = '*';
 
       if (i === 0) {
@@ -234,22 +284,18 @@ class Game {
     }
   }
 
-  _placeActor(actor, freeCells) {
-    const index = Math.floor(RNG.getUniform() * freeCells.length);
-    const key = freeCells.splice(index, 1)[0];
-    const parts = key.split(',');
-    const x = parseInt(parts[0]);
-    const y = parseInt(parts[1]);
-    actor.place(x, y);
+  _placeActor(actor, map) {
+    const index = Math.floor(RNG.getUniform() * map.getFreeCells().length);
+    const key = map.spliceFreeCells(index);
+    const coordinates = MapStructure.partKey(key);
+    actor.place(coordinates.x, coordinates.y);
     actor.draw();
   }
 
   _drawWholeMap() {
-    for (let key in this.map) {
-      const parts = key.split(',');
-      const x = parseInt(parts[0]);
-      const y = parseInt(parts[1]);
-      this.display.draw(x, y, this.map[key]);
+    for (let key in this.map.getWholeTerrain()) {
+      const coordinates = MapStructure.partKey(key);
+      this.display.draw(coordinates.x, coordinates.y, this.map.getTerrain(coordinates.x, coordinates.y));
     }
   }
 
