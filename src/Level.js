@@ -1,4 +1,4 @@
-import { Hollow, Floor, Box, Wall } from "./Terrain.js";
+import { Floor, Box, Wall } from "./Terrain.js";
 
 class Level {
   width = 100;
@@ -14,40 +14,22 @@ class Level {
   constructor() {
   }
 
-  exists(x, y) {
-    return Level.key(x, y) in this.terrain;
-  }
+  isTerrainPassable(x, y) {
+    const terrain = this.getTerrain(x, y);
 
-  isVisibleWall(x, y) {
-    if (this.exists(x, y)) {
+    if (terrain === null) {
       return false;
     }
-
-    if (this.exists(x- 1, y - 1)
-      || this.exists(x - 1, y)
-      || this.exists(x - 1, y + 1)
-      || this.exists(x, y - 1)
-      || this.exists(x, y + 1)
-      || this.exists(x + 1, y - 1)
-      || this.exists(x + 1, y)
-      || this.exists(x + 1, y + 1)
-    ) {
-      return true;
-    }
-
-    return false;
+    return terrain.isPassable();
   }
 
   getTerrain(x, y) {
-    if (this.exists(x, y)) {
-      return this.terrain[Level.key(x, y)];
+    const key = Level.key(x, y);
+    if (key in this.terrain) {
+      return this.terrain[key];
     }
 
-    if (this.isVisibleWall(x, y)) {
-      return new Wall();
-    }
-
-    return new Hollow();
+    return null;
   }
 
   setTerrain(x, y, terrain) {
@@ -60,6 +42,10 @@ class Level {
 
   setBox(x, y) {
     this.setTerrain(x, y, new Box());
+  }
+
+  setWall(x, y) {
+    this.setTerrain(x, y, new Wall());
   }
 
   hasAnanas(x, y) {

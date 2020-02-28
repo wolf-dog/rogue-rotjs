@@ -74,7 +74,7 @@ class Player {
 
     let newX = this.x + this.movingKeyMap[code][0];
     let newY = this.y + this.movingKeyMap[code][1];
-    if (!this.level.exists(newX, newY)) {
+    if (!this.level.isTerrainPassable(newX, newY)) {
       return;
     }
 

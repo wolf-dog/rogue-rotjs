@@ -37,6 +37,7 @@ class Game {
 
     digger.create((x, y, contents) => {
       if (contents === 1) {
+        level.setWall(x, y);
         return;
       }
 

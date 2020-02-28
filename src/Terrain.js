@@ -13,11 +13,9 @@ class Terrain {
   getBackground() {
     return 'black'
   }
-}
 
-class Hollow extends Terrain {
-  getCharacter() {
-    return '';
+  isPassable() {
+    return false;
   }
 }
 
@@ -29,6 +27,10 @@ class Floor extends Terrain {
   getForeground() {
     return 'grey'
   }
+
+  isPassable() {
+    return true;
+  }
 }
 
 class Box extends Terrain {
@@ -38,6 +40,10 @@ class Box extends Terrain {
 
   getForeground() {
     return 'green'
+  }
+
+  isPassable() {
+    return true;
   }
 }
 
@@ -51,4 +57,4 @@ class Wall extends Terrain {
   }
 }
 
-export { Hollow, Floor, Box, Wall }
+export { Floor, Box, Wall }

@@ -34,7 +34,7 @@ class Pedro {
 
   act() {
     const passableCallback = function(x, y) {
-      return this.level.exists(x, y);
+      return this.level.isTerrainPassable(x, y);
     }.bind(this);
     const astar = new Path.AStar(this.player.x, this.player.y, passableCallback, {topology: 8});
 
