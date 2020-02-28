@@ -1,3 +1,5 @@
+import { Hollow, Floor, Box, Wall } from "./Terrain.js";
+
 class Level {
   width = 100;
   height = 30;
@@ -42,22 +44,22 @@ class Level {
     }
 
     if (this.isVisibleWall(x, y)) {
-      return '#';
+      return new Wall();
     }
 
-    return '';
+    return new Hollow();
   }
 
-  setTerrain(x, y, content) {
-    this.terrain[Level.key(x, y)] = content;
+  setTerrain(x, y, terrain) {
+    this.terrain[Level.key(x, y)] = terrain;
   }
 
   setFloor(x, y) {
-    this.setTerrain(x, y, '.');
+    this.setTerrain(x, y, new Floor());
   }
 
   setBox(x, y) {
-    this.setTerrain(x, y, '*');
+    this.setTerrain(x, y, new Box());
   }
 
   hasAnanas(x, y) {

@@ -77,7 +77,14 @@ class Game {
   _drawWholeLevel(display, level) {
     for (let x = 0; x < level.width; x++) {
       for (let y = 0; y < level.height; y++) {
-        display.draw(x, y, level.getTerrain(x, y));
+        const terrain = level.getTerrain(x, y);
+        display.draw(
+          x,
+          y,
+          terrain.getCharacter(),
+          terrain.getForeground(),
+          terrain.getBackground()
+        );
       }
     }
   }

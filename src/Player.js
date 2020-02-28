@@ -57,7 +57,7 @@ class Player {
   }
 
   _checkBox() {
-    if (this.level.getTerrain(this.x, this.y) !== '*') {
+    if (this.level.getTerrain(this.x, this.y).constructor.name !== 'Box') {
       this.window.alert('There is no box here!');
     } else if (this.level.hasAnanas(this.x, this.y)) {
       this.window.alert('You Found an ananas and won this game!!');
@@ -78,10 +78,13 @@ class Player {
       return;
     }
 
+    const terrain = this.level.getTerrain(this.x, this.y);
     this.display.draw(
       this.x,
       this.y,
-      this.level.getTerrain(this.x, this.y)
+      terrain.getCharacter(),
+      terrain.getForeground(),
+      terrain.getBackground()
     );
     this.x = newX;
     this.y = newY;

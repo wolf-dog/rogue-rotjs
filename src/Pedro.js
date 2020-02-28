@@ -52,7 +52,14 @@ class Pedro {
     } else {
       const newX = path[0][0];
       const newY = path[0][1];
-      this.display.draw(this.x, this.y, this.level.getTerrain(this.x, this.y));
+      const terrain = this.level.getTerrain(this.x, this.y);
+      this.display.draw(
+        this.x,
+        this.y,
+        terrain.getCharacter(),
+        terrain.getForeground(),
+        terrain.getBackground()
+      );
       this.x = newX;
       this.y = newY;
       this.draw();
