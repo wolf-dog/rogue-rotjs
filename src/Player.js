@@ -1,6 +1,9 @@
 import { DIRS } from "../node_modules/rot-js/lib/index.js";
 
 class Player {
+  keyCodeInspect = 32;
+  keyCodeWait = 190;
+
   movingKeyMap = {
     72: DIRS[8][6],
     74: DIRS[8][4],
@@ -48,30 +51,40 @@ class Player {
   handleEvent(event) {
     const code = event.keyCode;
 
-    if (code === 32) {
-      this._checkBox();
-      return;
+    switch (code) {
+      case this.keyCodeInspect:
+        this._checkBox();
+        return;
+      case this.keyCodeWait:
+        this._wait();
+        return;
     }
 
-    this._move(code);
+    if (code in this.movingKeyMap) {
+      this._move(code);
+    }
   }
 
   _checkBox() {
     if (this.level.getTerrain(this.x, this.y).constructor.name !== 'Box') {
       this.window.alert('There is no box here!');
-    } else if (this.level.hasAnanas(this.x, this.y)) {
+      return;
+    }
+
+    if (this.level.hasAnanas(this.x, this.y)) {
       this.window.alert('You Found an ananas and won this game!!');
       this.window.removeEventListener('keydown', this);
     } else {
       this.window.alert('This box is empty.');
+      this._resolve();
     }
   }
 
-  _move(code) {
-    if (!(code in this.movingKeyMap)) {
-      return;
-    }
+  _wait() {
+    this._resolve();
+  }
 
+  _move(code) {
     let newX = this.x + this.movingKeyMap[code][0];
     let newY = this.y + this.movingKeyMap[code][1];
     if (!this.level.isTerrainPassable(newX, newY)) {
