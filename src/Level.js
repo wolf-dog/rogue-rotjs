@@ -6,6 +6,9 @@ class Level {
   freeCells = [];
   ananas = null;
 
+  player = null;
+  enemies = null;
+
   constructor() {
   }
 

@@ -12,9 +12,6 @@ class Game {
   display = null;
   engine = null;
 
-  player = null;
-  enemies = null;
-
   constructor(container, window) {
     RNG.setSeed(Math.random());
 
@@ -24,10 +21,10 @@ class Game {
     this.display = this._initDisplay(container, this.level);
     this._drawWholeLevel(this.display, this.level);
 
-    this.player = this._initPlayer(this.window, this.display, this.level);
-    this.enemies = this._initEnemies(this.window, this.display, this.level, this.player);
+    this.level.player = this._initPlayer(this.window, this.display, this.level);
+    this.level.enemies = this._initEnemies(this.window, this.display, this.level, this.level.player);
 
-    this.engine = this._initEngine(this.player, this.enemies);
+    this.engine = this._initEngine(this.level.player, this.level.enemies);
   }
 
   _generateLevel() {
