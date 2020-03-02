@@ -28,6 +28,13 @@ class Pedro {
     this.y = y;
   }
 
+  exists(x, y) {
+    if (this.x === x && this.y === y) {
+      return true;
+    }
+    return false;
+  }
+
   draw() {
     this.display.draw(this.x, this.y, 'P', 'red');
   }
@@ -52,6 +59,11 @@ class Pedro {
     } else {
       const newX = path[0][0];
       const newY = path[0][1];
+
+      if (this.level.getEnemy(newX, newY)) {
+        return;
+      }
+
       const terrain = this.level.getTerrain(this.x, this.y);
       this.display.draw(
         this.x,

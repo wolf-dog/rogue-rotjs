@@ -9,7 +9,7 @@ class Level {
   ananas = null;
 
   player = null;
-  enemies = null;
+  enemies = [];
 
   constructor() {
   }
@@ -66,6 +66,16 @@ class Level {
 
   pushIntoFreeCells(x, y) {
     this.freeCells.push(Level.key(x, y));
+  }
+
+  getEnemy(x, y) {
+    for (const enemy of this.enemies) {
+      if (enemy.exists(x, y)) {
+        return enemy;
+      }
+    }
+
+    return null;
   }
 
   static key(x, y) {

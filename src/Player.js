@@ -39,6 +39,13 @@ class Player {
     this.y = y;
   }
 
+  exists(x, y) {
+    if (this.x === x && this.y === y) {
+      return true;
+    }
+    return false;
+  }
+
   draw() {
     this.display.draw(this.x, this.y, '@', 'yellow');
   }
