@@ -1,6 +1,7 @@
-import { DIRS } from "../node_modules/rot-js/lib/index.js";
+import { DIRS } from '../node_modules/rot-js/lib/index.js';
+import Actor from './Actor.js';
 
-class Player {
+class Player extends Actor {
   keyCodeInspect = 32;
   keyCodeWait = 190;
 
@@ -16,38 +17,23 @@ class Player {
   };
 
   window = null;
-  display = null;
-  level = null;
-
-  engine = null;
-
-  x = null;
-  y = null;
 
   constructor(window, display, level) {
+    super(display, level);
+
     this.window = window;
-    this.display = display;
-    this.level = level;
   }
 
-  setEngine(engine) {
-    this.engine = engine;
+  getCharacter() {
+    return '@';
   }
 
-  place(x, y) {
-    this.x = x;
-    this.y = y;
+  getForeground() {
+    return 'yellow';
   }
 
-  exists(x, y) {
-    if (this.x === x && this.y === y) {
-      return true;
-    }
-    return false;
-  }
-
-  draw() {
-    this.display.draw(this.x, this.y, '@', 'yellow');
+  getBackground() {
+    return 'black';
   }
 
   act() {
