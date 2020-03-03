@@ -1,3 +1,5 @@
+import Colors from './Colors.js';
+
 class Being {
   display = null;
   level = null;
@@ -37,11 +39,11 @@ class Being {
   }
 
   getForeground() {
-    return 'white';
+    return Colors.defaultForeGround;
   }
 
   getBackground() {
-    return 'black';
+    return Colors.defaultBackGround;
   }
 }
 

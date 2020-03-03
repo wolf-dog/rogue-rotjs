@@ -9,10 +9,6 @@ class Pedro extends Enemy {
   getForeground() {
     return 'red';
   }
-
-  getBackground() {
-    return 'black';
-  }
 }
 
 export { Pedro as default }

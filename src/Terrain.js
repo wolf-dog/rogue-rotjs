@@ -1,3 +1,5 @@
+import Colors from './Colors.js';
+
 class Terrain {
   constructor() {
   }
@@ -7,11 +9,11 @@ class Terrain {
   }
 
   getForeground() {
-    return 'white'
+    return Colors.defaultForeGround;
   }
 
   getBackground() {
-    return 'black'
+    return Colors.defaultBackGround;
   }
 
   isPassable() {
@@ -25,7 +27,7 @@ class Floor extends Terrain {
   }
 
   getForeground() {
-    return 'grey'
+    return '#444';
   }
 
   isPassable() {
@@ -39,7 +41,7 @@ class Box extends Terrain {
   }
 
   getForeground() {
-    return 'green'
+    return 'green';
   }
 
   isPassable() {
@@ -53,7 +55,7 @@ class Wall extends Terrain {
   }
 
   getBackground() {
-    return 'brown'
+    return 'grey';
   }
 }
 

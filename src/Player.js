@@ -32,10 +32,6 @@ class Player extends Actor {
     return 'yellow';
   }
 
-  getBackground() {
-    return 'black';
-  }
-
   act() {
     this.engine.lock();
     this.window.addEventListener('keydown', this);
