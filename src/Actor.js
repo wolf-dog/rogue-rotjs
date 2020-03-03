@@ -3,6 +3,8 @@ import Being from './Being.js';
 class Actor extends Being {
   engine = null;
 
+  fovRadius = 10;
+
   act() {
   }
 
