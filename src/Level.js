@@ -1,9 +1,6 @@
 import { Floor, Box, Wall } from "./Terrain.js";
 
 class Level {
-  width = 100;
-  height = 30;
-
   terrain = {};
   freeCells = [];
   ananas = null;

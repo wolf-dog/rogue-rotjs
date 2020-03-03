@@ -2,19 +2,6 @@ import { DIRS } from '../node_modules/rot-js/lib/index.js';
 import Actor from './Actor.js';
 
 class Player extends Actor {
-  keyCodeInspect = 32;
-  keyCodeWait = 190;
-
-  movingKeyMap = {
-    72: DIRS[8][6],
-    74: DIRS[8][4],
-    75: DIRS[8][0],
-    76: DIRS[8][2],
-    89: DIRS[8][7],
-    85: DIRS[8][1],
-    78: DIRS[8][5],
-    77: DIRS[8][3],
-  };
 
   window = null;
 
@@ -41,15 +28,15 @@ class Player extends Actor {
     const code = event.keyCode;
 
     switch (code) {
-      case this.keyCodeInspect:
+      case Player.keyCodeInspect:
         this._checkBox();
         return;
-      case this.keyCodeWait:
+      case Player.keyCodeWait:
         this._wait();
         return;
     }
 
-    if (code in this.movingKeyMap) {
+    if (code in Player.movingKeyMap) {
       this._move(code);
     }
   }
@@ -74,8 +61,8 @@ class Player extends Actor {
   }
 
   _move(code) {
-    const newX = this.x + this.movingKeyMap[code][0];
-    const newY = this.y + this.movingKeyMap[code][1];
+    const newX = this.x + Player.movingKeyMap[code][0];
+    const newY = this.y + Player.movingKeyMap[code][1];
     if (!this.level.isTerrainPassable(newX, newY)) {
       return;
     }
@@ -99,5 +86,18 @@ class Player extends Actor {
     this.engine.unlock();
   }
 }
+
+Player.keyCodeInspect = 32;
+Player.keyCodeWait = 190;
+Player.movingKeyMap = {
+  72: DIRS[8][6],
+  74: DIRS[8][4],
+  75: DIRS[8][0],
+  76: DIRS[8][2],
+  89: DIRS[8][7],
+  85: DIRS[8][1],
+  78: DIRS[8][5],
+  77: DIRS[8][3],
+};
 
 export { Player as default }

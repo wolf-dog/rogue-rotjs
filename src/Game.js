@@ -1,12 +1,11 @@
 import { Display, Engine, Map, RNG, Scheduler, Util } from "../node_modules/rot-js/lib/index.js";
+import Rules from "./static/Rules.js";
 import Level from "./Level.js";
 import Player from "./Player.js";
 import Pedro from "./Pedro.js";
 
 
 class Game {
-  numOfBoxes = 10;
-
   window = null;
   level = null;
   display = null;
@@ -18,7 +17,7 @@ class Game {
     this.window = window;
 
     this.level = this._generateLevel();
-    this.display = this._initDisplay(container, this.level);
+    this.display = this._initDisplay(container);
     this._drawWholeLevel(this.display, this.level);
 
     this.level.player = this._initPlayer(this.window, this.display, this.level);
@@ -29,10 +28,10 @@ class Game {
 
   _generateLevel() {
     const level = new Level;
-    const digger = new Map.Digger(level.width, level.height, {
-      roomWidth: [3, 15],
-      roomHeight: [3, 9],
-      dugPercentage: [0.3],
+    const digger = new Map.Digger(Rules.levelWidth, Rules.levelHeight, {
+      roomWidth: Rules.roomWidth,
+      roomHeight: Rules.roomHeight,
+      dugPercentage: Rules.dugPercentage,
     });
 
     digger.create((x, y, contents) => {
@@ -51,7 +50,7 @@ class Game {
   }
 
   _generateBoxes(level) {
-    for (let i = 0; i < this.numOfBoxes; i++) {
+    for (let i = 0; i < Rules.numOfBoxes; i++) {
       const index = Math.floor(RNG.getUniform() * level.getFreeCells().length);
       const coordinates = level.spliceFreeCells(index)
       level.setBox(coordinates.x, coordinates.y);
@@ -62,13 +61,13 @@ class Game {
     }
   }
 
-  _initDisplay(container, level) {
+  _initDisplay(container) {
     const display = new Display({
       bg: 'black',
       fg: 'white',
-      width: level.width,
-      height: level.height,
-      fontSize: 16
+      width: Rules.levelWidth,
+      height: Rules.levelHeight,
+      fontSize: Rules.fontSize
     });
     container.appendChild(display.getContainer());
 
@@ -76,8 +75,8 @@ class Game {
   }
 
   _drawWholeLevel(display, level) {
-    for (let x = 0; x < level.width; x++) {
-      for (let y = 0; y < level.height; y++) {
+    for (let x = 0; x < Rules.levelWidth; x++) {
+      for (let y = 0; y < Rules.levelHeight; y++) {
         const terrain = level.getTerrain(x, y);
         display.draw(
           x,
