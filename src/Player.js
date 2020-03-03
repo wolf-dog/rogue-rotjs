@@ -78,8 +78,8 @@ class Player extends Actor {
   }
 
   _move(code) {
-    let newX = this.x + this.movingKeyMap[code][0];
-    let newY = this.y + this.movingKeyMap[code][1];
+    const newX = this.x + this.movingKeyMap[code][0];
+    const newY = this.y + this.movingKeyMap[code][1];
     if (!this.level.isTerrainPassable(newX, newY)) {
       return;
     }

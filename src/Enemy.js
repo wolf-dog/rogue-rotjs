@@ -18,7 +18,7 @@ class Enemy extends Actor {
     }.bind(this);
     const astar = new Path.AStar(this.player.x, this.player.y, passableCallback, {topology: 8});
 
-    let path = [];
+    const path = [];
     const pathCallback = function(x, y) {
       path.push([x, y]);
     }
