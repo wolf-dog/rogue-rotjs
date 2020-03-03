@@ -11,14 +11,6 @@ class Player extends Actor {
     this.window = window;
   }
 
-  getCharacter() {
-    return '@';
-  }
-
-  getForeground() {
-    return 'yellow';
-  }
-
   act() {
     this.engine.lock();
     this.window.addEventListener('keydown', this);
@@ -84,6 +76,14 @@ class Player extends Actor {
   _resolve() {
     this.window.removeEventListener('keydown', this);
     this.engine.unlock();
+  }
+
+  _getCharacter() {
+    return '@';
+  }
+
+  _getForeground() {
+    return 'yellow';
   }
 }
 

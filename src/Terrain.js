@@ -1,4 +1,4 @@
-import Colors from './Colors.js';
+import Colors from './static/Colors.js';
 
 class Terrain {
   constructor() {

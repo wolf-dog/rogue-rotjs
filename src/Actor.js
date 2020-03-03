@@ -3,6 +3,9 @@ import Being from './Being.js';
 class Actor extends Being {
   engine = null;
 
+  act() {
+  }
+
   setEngine(engine) {
     this.engine = engine;
   }

@@ -1,4 +1,4 @@
-import Colors from './Colors.js';
+import Colors from './static/Colors.js';
 
 class Being {
   display = null;
@@ -28,21 +28,21 @@ class Being {
     this.display.draw(
       this.x,
       this.y,
-      this.getCharacter(),
-      this.getForeground(),
-      this.getBackground()
+      this._getCharacter(),
+      this._getForeground(),
+      this._getBackground()
     );
   }
 
-  getCharacter() {
+  _getCharacter() {
     return '';
   }
 
-  getForeground() {
+  _getForeground() {
     return Colors.defaultForeGround;
   }
 
-  getBackground() {
+  _getBackground() {
     return Colors.defaultBackGround;
   }
 }

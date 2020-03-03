@@ -1,4 +1,5 @@
 import { Display, Engine, Map, RNG, Scheduler, Util } from "../node_modules/rot-js/lib/index.js";
+import Colors from "./static/Colors.js";
 import Rules from "./static/Rules.js";
 import Level from "./Level.js";
 import Player from "./Player.js";
@@ -63,8 +64,8 @@ class Game {
 
   _initDisplay(container) {
     const display = new Display({
-      bg: 'black',
-      fg: 'white',
+      bg: Colors.defaultBackGround,
+      fg: Colors.defaultForeGround,
       width: Rules.levelWidth,
       height: Rules.levelHeight,
       fontSize: Rules.fontSize

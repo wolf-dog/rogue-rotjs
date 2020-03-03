@@ -2,11 +2,11 @@ import { Path } from '../node_modules/rot-js/lib/index.js';
 import Enemy from './Enemy.js';
 
 class Pedro extends Enemy {
-  getCharacter() {
+  _getCharacter() {
     return 'P';
   }
 
-  getForeground() {
+  _getForeground() {
     return 'red';
   }
 }
