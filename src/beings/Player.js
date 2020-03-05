@@ -1,4 +1,4 @@
-import { DIRS } from '../node_modules/rot-js/lib/index.js';
+import { DIRS } from '../../node_modules/rot-js/lib/index.js';
 import Actor from './Actor.js';
 
 class Player extends Actor {

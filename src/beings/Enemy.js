@@ -1,4 +1,4 @@
-import { FOV, Path, RNG } from '../node_modules/rot-js/lib/index.js';
+import { FOV, Path, RNG } from '../../node_modules/rot-js/lib/index.js';
 import Actor from './Actor.js';
 
 class Enemy extends Actor {

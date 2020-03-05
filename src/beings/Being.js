@@ -1,4 +1,4 @@
-import Colors from './static/Colors.js';
+import Colors from '../static/Colors.js';
 
 class Being {
   display = null;

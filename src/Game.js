@@ -1,9 +1,9 @@
 import { Display, Engine, Map, RNG, Scheduler, Util } from "../node_modules/rot-js/lib/index.js";
+import Pedro from "./beings/Pedro.js";
+import Player from "./beings/Player.js";
 import Colors from "./static/Colors.js";
 import Rules from "./static/Rules.js";
 import Level from "./Level.js";
-import Player from "./Player.js";
-import Pedro from "./Pedro.js";
 
 
 class Game {
