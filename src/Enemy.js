@@ -1,4 +1,4 @@
-import { FOV, Path, RNG } from '../../node_modules/rot-js/lib/index.js';
+import { FOV, Path, RNG } from '../node_modules/rot-js/lib/index.js';
 import Actor from './Actor.js';
 
 class Enemy extends Actor {
@@ -6,7 +6,6 @@ class Enemy extends Actor {
   player = null;
 
   lastPlayerPosition = null;
-  spotting = null;
 
   constructor(window, display, level, player) {
     super(display, level);
@@ -36,7 +35,6 @@ class Enemy extends Actor {
       }
     }.bind(this));
 
-    this.spotting = isSpottingPlayer;
     return isSpottingPlayer;
   }
 
@@ -129,12 +127,7 @@ class Enemy extends Actor {
     this.draw();
   }
 
-  _getForeground() {
-    if (this.spotting) {
-      return 'red';
-    } else {
-      return 'yellow';
-    }
+  _attack() {
   }
 }
 

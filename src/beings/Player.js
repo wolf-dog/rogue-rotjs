@@ -2,8 +2,9 @@ import { DIRS } from '../../node_modules/rot-js/lib/index.js';
 import Actor from './Actor.js';
 
 class Player extends Actor {
-
   window = null;
+
+  spotted = false;
 
   constructor(window, display, level) {
     super(display, level);
@@ -11,7 +12,21 @@ class Player extends Actor {
     this.window = window;
   }
 
+  isSpotted() {
+    return this.spotted;
+  }
+
+  spot() {
+    this.spotted = true;
+  }
+
+  unspot() {
+    this.spotted = false;
+  }
+
   act() {
+    this.unspot();
+
     this.engine.lock();
     this.window.addEventListener('keydown', this);
   }
@@ -59,6 +74,10 @@ class Player extends Actor {
       return;
     }
 
+    if (this.level.getEnemy(newX, newY)) {
+      return;
+    }
+
     const terrain = this.level.getTerrain(this.x, this.y);
     this.display.draw(
       this.x,
@@ -80,10 +99,6 @@ class Player extends Actor {
 
   _getCharacter() {
     return '@';
-  }
-
-  _getForeground() {
-    return 'yellow';
   }
 }
 

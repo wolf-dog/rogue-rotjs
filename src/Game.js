@@ -1,4 +1,5 @@
 import { Display, Engine, Map, RNG, Scheduler, Util } from "../node_modules/rot-js/lib/index.js";
+import Hound from "./beings/Hound.js";
 import Pedro from "./beings/Pedro.js";
 import Player from "./beings/Player.js";
 import Colors from "./static/Colors.js";
@@ -105,7 +106,9 @@ class Game {
 
   _initEnemies(window, display, level, player) {
     const enemies = [
-      new Pedro(window, display, level, player),
+      new Hound(window, display, level, player),
+      new Hound(window, display, level, player),
+      new Hound(window, display, level, player),
       new Pedro(window, display, level, player),
     ];
 
