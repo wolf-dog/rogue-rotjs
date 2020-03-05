@@ -65,6 +65,22 @@ class Level {
     this.freeCells.push(Level.key(x, y));
   }
 
+  getPlayer() {
+    return this.player;
+  }
+
+  setPlayer(player) {
+    this.player = player;
+  }
+
+  getEnemies() {
+    return this.enemies;
+  }
+
+  setEnemies(enemies) {
+    this.enemies = enemies;
+  }
+
   getEnemy(x, y) {
     for (const enemy of this.enemies) {
       if (enemy.exists(x, y)) {

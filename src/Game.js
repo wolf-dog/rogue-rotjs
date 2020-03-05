@@ -19,12 +19,13 @@ class Game {
 
     this.level = this._generateLevel();
     this.display = this._initDisplay(container);
+
+    this.level.setPlayer(this._initPlayer(this.window, this.display, this.level));
+    this.level.setEnemies(this._initEnemies(this.window, this.display, this.level, this.level.player));
+
     this._drawWholeLevel(this.display, this.level);
 
-    this.level.player = this._initPlayer(this.window, this.display, this.level);
-    this.level.enemies = this._initEnemies(this.window, this.display, this.level, this.level.player);
-
-    this.engine = this._initEngine(this.level.player, this.level.enemies);
+    this.engine = this._initEngine(this.level.getPlayer(), this.level.getEnemies());
   }
 
   _generateLevel() {
@@ -88,6 +89,11 @@ class Game {
         );
       }
     }
+
+    this.level.getPlayer().draw();
+    for (const enemy of this.level.getEnemies()) {
+      enemy.draw();
+    }
   }
 
   _initPlayer(window, display, level) {
@@ -114,7 +120,6 @@ class Game {
     const index = Math.floor(RNG.getUniform() * level.getFreeCells().length);
     const coordinates = level.spliceFreeCells(index);
     actor.place(coordinates.x, coordinates.y);
-    actor.draw();
   }
 
   _initEngine(player, enemies) {
