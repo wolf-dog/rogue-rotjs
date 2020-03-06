@@ -112,7 +112,9 @@ class Enemy extends Actor {
   }
 
   _move(toX, toY) {
-    if (this.level.getEnemy(toX, toY)) {
+    const toSwap = this.level.getEnemy(toX, toY);
+    if (toSwap !== null) {
+      this._swap(toSwap, toX, toY);
       return;
     }
 
@@ -127,6 +129,9 @@ class Enemy extends Actor {
     this.x = toX;
     this.y = toY;
     this.draw();
+  }
+
+  _swap(toSwap, toX, toY) {
   }
 
   _getForeground() {
