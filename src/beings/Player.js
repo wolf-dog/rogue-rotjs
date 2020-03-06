@@ -68,13 +68,13 @@ class Player extends Actor {
   }
 
   _move(code) {
-    const newX = this.x + Player.movingKeyMap[code][0];
-    const newY = this.y + Player.movingKeyMap[code][1];
-    if (!this.level.isTerrainPassable(newX, newY)) {
+    const toX = this.x + Player.movingKeyMap[code][0];
+    const toY = this.y + Player.movingKeyMap[code][1];
+    if (!this.level.isTerrainPassable(toX, toY)) {
       return;
     }
 
-    if (this.level.getEnemy(newX, newY)) {
+    if (this.level.getEnemy(toX, toY)) {
       return;
     }
 
@@ -86,8 +86,8 @@ class Player extends Actor {
       terrain.getForeground(),
       terrain.getBackground()
     );
-    this.x = newX;
-    this.y = newY;
+    this.x = toX;
+    this.y = toY;
     this.draw();
     this._resolve();
   }
